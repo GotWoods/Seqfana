@@ -1,0 +1,12 @@
+{
+  "extends": "@grafana/tsconfig/base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "paths": {
+      "src/*": ["*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist", "node_modules"]
+}

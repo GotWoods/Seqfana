@@ -1,0 +1,40 @@
+services:
+  seq:
+    image: datalust/seq:latest
+    ports:
+      - "15341:5341"
+      - "18080:80"
+    environment:
+      ACCEPT_EULA: "Y"
+    healthcheck:
+      test: ["CMD", "/seqsvr/Client/seqcli", "node", "health", "-s", "http://localhost:80"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: "seqfana-datasource"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./dist:/var/lib/grafana/plugins/seqfana-datasource
+      - ./docker/provisioning/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      seq:
+        condition: service_healthy
+
+  seed:
+    image: alpine:latest
+    volumes:
+      - ./docker/seed-events.sh:/seed-events.sh:ro
+    entrypoint: ["sh", "/seed-events.sh"]
+    depends_on:
+      seq:
+        condition: service_healthy
+
+volumes:
+  grafana-data:
