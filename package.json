@@ -1,6 +1,6 @@
 {
   "name": "gotwoods-seq-datasource",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Grafana data source plugin for Seq structured logging server",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",

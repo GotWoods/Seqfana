@@ -9,6 +9,8 @@ jobs:
   release:
     permissions:
       contents: write
+      id-token: write
+      attestations: write
     runs-on: ubuntu-latest
     env:
       GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
@@ -43,6 +45,11 @@ jobs:
           echo "archive=${ARCHIVE}" >> $GITHUB_OUTPUT
           echo "sha1=${SHA1}" >> $GITHUB_OUTPUT
           echo "Built ${ARCHIVE} (SHA1: ${SHA1})"
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ./${{ steps.package.outputs.archive }}
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
