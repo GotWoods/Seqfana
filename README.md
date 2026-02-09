@@ -50,7 +50,7 @@ The Seq datasource is auto-provisioned in Grafana. Go to Explore, select Seq, an
 5. Allow the unsigned plugin by adding to your Grafana config:
    ```ini
    [plugins]
-   allow_loading_unsigned_plugins = gotwoods-seqfana-datasource
+   allow_loading_unsigned_plugins = gotwoods-seq-datasource
    ```
 
 ## Configuration

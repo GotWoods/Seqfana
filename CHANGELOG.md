@@ -2,7 +2,7 @@
 
 ## 1.0.3
 
-- Renamed plugin ID to `gotwoods-seqfana-datasource` for Grafana catalog compatibility
+- Renamed plugin ID to `gotwoods-seq-datasource` for Grafana catalog compatibility
 - Added GitHub Actions release workflow
 
 ## 1.0.2

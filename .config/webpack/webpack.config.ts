@@ -104,7 +104,7 @@ const config = async (env: any): Promise<Configuration> => {
         },
       ],
     },
-    devtool: isProduction ? false : 'eval-source-map',
+    devtool: isProduction ? 'source-map' : 'eval-source-map',
   };
 };
 

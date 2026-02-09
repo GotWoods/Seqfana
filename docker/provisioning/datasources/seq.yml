@@ -2,7 +2,7 @@ apiVersion: 1
 
 datasources:
   - name: Seq
-    type: gotwoods-seqfana-datasource
+    type: gotwoods-seq-datasource
     access: proxy
     isDefault: true
     jsonData:
