@@ -14,9 +14,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: grafana/plugin-actions/build-plugin@main
+        id: build
         with:
           # Signing requires Grafana catalog approval first.
           # Uncomment the line below after approval:
           # policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
           attestation: true
+
+      - name: Get plugin metadata
+        id: metadata
+        run: |
+          export GRAFANA_PLUGIN_ID=$(cat dist/plugin.json | jq -r .id)
+          export GRAFANA_PLUGIN_VERSION=$(cat dist/plugin.json | jq -r .info.version)
+          export GRAFANA_PLUGIN_ARTIFACT=${GRAFANA_PLUGIN_ID}-${GRAFANA_PLUGIN_VERSION}.zip
+          echo "id=${GRAFANA_PLUGIN_ID}" >> $GITHUB_OUTPUT
+          echo "version=${GRAFANA_PLUGIN_VERSION}" >> $GITHUB_OUTPUT
+          echo "artifact=${GRAFANA_PLUGIN_ARTIFACT}" >> $GITHUB_OUTPUT
+          echo "sha1=$(sha1sum ${GRAFANA_PLUGIN_ARTIFACT} | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: |
+            ./${{ steps.metadata.outputs.artifact }}
+          body: |
+            **SHA1:** `${{ steps.metadata.outputs.sha1 }}`
+
+            ## Install
+
+            Download the `.zip` file and extract it into your Grafana plugins directory, then restart Grafana.

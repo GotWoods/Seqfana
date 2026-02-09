@@ -43,6 +43,9 @@ const config = async (env: any): Promise<Configuration> => {
         patterns: [
           { from: 'src/plugin.json', to: '.' },
           { from: 'src/img/', to: 'img/', noErrorOnMissing: true },
+          { from: 'README.md', to: '.' },
+          { from: 'LICENSE', to: '.' },
+          { from: 'CHANGELOG.md', to: '.', noErrorOnMissing: true },
         ],
       }),
       new ForkTsCheckerWebpackPlugin({

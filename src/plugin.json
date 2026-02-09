@@ -22,7 +22,12 @@
         "url": "https://github.com/GotWoods/Seqfana"
       }
     ],
-    "screenshots": [],
+    "screenshots": [
+      {
+        "name": "Query Editor",
+        "path": "img/editscreenshot.png"
+      }
+    ],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
