@@ -23,16 +23,28 @@ jobs:
           # policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
           attestation: true
 
-      - name: Get plugin metadata
-        id: metadata
+      - name: List build output
         run: |
-          export GRAFANA_PLUGIN_ID=$(cat dist/plugin.json | jq -r .id)
-          export GRAFANA_PLUGIN_VERSION=$(cat dist/plugin.json | jq -r .info.version)
-          export GRAFANA_PLUGIN_ARTIFACT=${GRAFANA_PLUGIN_ID}-${GRAFANA_PLUGIN_VERSION}.zip
-          echo "id=${GRAFANA_PLUGIN_ID}" >> $GITHUB_OUTPUT
-          echo "version=${GRAFANA_PLUGIN_VERSION}" >> $GITHUB_OUTPUT
-          echo "artifact=${GRAFANA_PLUGIN_ARTIFACT}" >> $GITHUB_OUTPUT
-          echo "sha1=$(sha1sum ${GRAFANA_PLUGIN_ARTIFACT} | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          echo "Archive output: ${{ steps.build.outputs.archive }}"
+          echo "SHA1 output: ${{ steps.build.outputs.archive-sha1sum }}"
+          echo "--- Files in working directory ---"
+          ls -la *.zip *.sha1 2>/dev/null || true
+          echo "--- All zip files anywhere ---"
+          find . -name "*.zip" -o -name "*.sha1" 2>/dev/null || true
+
+      - name: Compute SHA1
+        id: sha1
+        run: |
+          ARCHIVE=$(ls *.zip 2>/dev/null | head -1)
+          if [ -n "$ARCHIVE" ]; then
+            SHA1=$(sha1sum "$ARCHIVE" | cut -d' ' -f1)
+            echo "archive=$ARCHIVE" >> $GITHUB_OUTPUT
+            echo "sha1=$SHA1" >> $GITHUB_OUTPUT
+            echo "SHA1 of $ARCHIVE: $SHA1"
+          else
+            echo "No zip file found!"
+            exit 1
+          fi
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -40,9 +52,9 @@ jobs:
           draft: true
           generate_release_notes: true
           files: |
-            ./${{ steps.metadata.outputs.artifact }}
+            ./${{ steps.sha1.outputs.archive }}
           body: |
-            **SHA1:** `${{ steps.metadata.outputs.sha1 }}`
+            **SHA1:** `${{ steps.sha1.outputs.sha1 }}`
 
             ## Install
 

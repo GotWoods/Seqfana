@@ -142,4 +142,4 @@ docker/
 
 ## License
 
-Apache License 2.0 - see [LICENSE](LICENSE) for details.
+Apache License 2.0 - see [LICENSE](https://github.com/GotWoods/Seqfana/blob/main/LICENSE) for details.
