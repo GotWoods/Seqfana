@@ -26,42 +26,6 @@ jobs:
       - name: Build plugin
         run: npm run build
 
-      - name: Debug source maps
-        run: |
-          echo "=== Checking line endings of source files ==="
-          for f in src/datasource.ts src/types.ts src/module.ts src/components/ConfigEditor.tsx src/components/QueryEditor.tsx; do
-            echo "$f: $(file $f)"
-            echo "  bytes: $(wc -c < $f)"
-            echo "  CR count: $(tr -cd '\r' < $f | wc -c)"
-          done
-          echo ""
-          echo "=== Comparing source map sourcesContent vs source files ==="
-          node -e "
-            const fs = require('fs');
-            const map = JSON.parse(fs.readFileSync('dist/module.js.map','utf8'));
-            map.sources.forEach((src, i) => {
-              const file = src.startsWith('./') ? src.slice(2) : src;
-              {
-                if (fs.existsSync(file)) {
-                  const fileContent = fs.readFileSync(file, 'utf8');
-                  const mapContent = map.sourcesContent[i];
-                  if (fileContent === mapContent) {
-                    console.log(file + ': MATCH');
-                  } else {
-                    console.log(file + ': MISMATCH');
-                    console.log('  map length: ' + mapContent.length + ', file length: ' + fileContent.length);
-                    for (let j = 0; j < Math.min(mapContent.length, fileContent.length); j++) {
-                      if (mapContent[j] !== fileContent[j]) {
-                        console.log('  first diff at pos ' + j + ': map=' + JSON.stringify(mapContent.slice(j,j+30)) + ' file=' + JSON.stringify(fileContent.slice(j,j+30)));
-                        break;
-                      }
-                    }
-                  }
-                }
-              }
-            });
-          "
-
       - name: Sign plugin
         if: env.GRAFANA_ACCESS_POLICY_TOKEN != ''
         run: npx --yes @grafana/sign-plugin@latest

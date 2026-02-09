@@ -20,7 +20,11 @@ const config = async (env: any): Promise<Configuration> => {
       filename: '[name].js',
       libraryTarget: 'amd',
       clean: true,
-      devtoolModuleFilenameTemplate: '[resource-path]',
+      devtoolModuleFilenameTemplate: (info: any) => {
+        // Strip ./src/ prefix so Grafana plugin-validator resolves paths correctly.
+        // The validator prepends its own src/ when looking up files in the repo.
+        return info.resourcePath.replace(/^\.\/src\//, './');
+      },
     },
     externals: [
       'lodash',
