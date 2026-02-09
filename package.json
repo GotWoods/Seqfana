@@ -1,5 +1,5 @@
 {
-  "name": "seqfana-datasource",
+  "name": "gotwoods-seqfana-datasource",
   "version": "1.0.1",
   "description": "Grafana data source plugin for Seq structured logging server",
   "scripts": {

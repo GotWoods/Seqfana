@@ -18,10 +18,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: "seqfana-datasource"
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: "gotwoods-seqfana-datasource"
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./dist:/var/lib/grafana/plugins/seqfana-datasource
+      - ./dist:/var/lib/grafana/plugins/gotwoods-seqfana-datasource
       - ./docker/provisioning/datasources:/etc/grafana/provisioning/datasources
     depends_on:
       seq:
