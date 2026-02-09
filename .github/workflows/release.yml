@@ -8,54 +8,50 @@ on:
 jobs:
   release:
     permissions:
-      id-token: write
       contents: write
-      attestations: write
     runs-on: ubuntu-latest
+    env:
+      GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
-      - uses: grafana/plugin-actions/build-plugin@main
-        id: build
+      - uses: actions/setup-node@v4
         with:
-          # Signing requires Grafana catalog approval first.
-          # Uncomment the line below after approval:
-          # policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
-          attestation: true
+          node-version: "20"
+          cache: "npm"
 
-      - name: List build output
-        run: |
-          echo "Archive output: ${{ steps.build.outputs.archive }}"
-          echo "SHA1 output: ${{ steps.build.outputs.archive-sha1sum }}"
-          echo "--- Files in working directory ---"
-          ls -la *.zip *.sha1 2>/dev/null || true
-          echo "--- All zip files anywhere ---"
-          find . -name "*.zip" -o -name "*.sha1" 2>/dev/null || true
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Compute SHA1
-        id: sha1
+      - name: Build plugin
+        run: npm run build
+
+      - name: Sign plugin
+        if: env.GRAFANA_ACCESS_POLICY_TOKEN != ''
+        run: npx --yes @grafana/sign-plugin@latest
+        continue-on-error: true
+
+      - name: Package plugin
+        id: package
         run: |
-          ARCHIVE=$(ls *.zip 2>/dev/null | head -1)
-          if [ -n "$ARCHIVE" ]; then
-            SHA1=$(sha1sum "$ARCHIVE" | cut -d' ' -f1)
-            echo "archive=$ARCHIVE" >> $GITHUB_OUTPUT
-            echo "sha1=$SHA1" >> $GITHUB_OUTPUT
-            echo "SHA1 of $ARCHIVE: $SHA1"
-          else
-            echo "No zip file found!"
-            exit 1
-          fi
+          PLUGIN_ID=$(cat dist/plugin.json | jq -r .id)
+          PLUGIN_VERSION=$(cat dist/plugin.json | jq -r .info.version)
+          ARCHIVE="${PLUGIN_ID}-${PLUGIN_VERSION}.zip"
+          cd dist && zip -r "../${ARCHIVE}" . && cd ..
+          SHA1=$(sha1sum "$ARCHIVE" | cut -d' ' -f1)
+          echo "archive=${ARCHIVE}" >> $GITHUB_OUTPUT
+          echo "sha1=${SHA1}" >> $GITHUB_OUTPUT
+          echo "Built ${ARCHIVE} (SHA1: ${SHA1})"
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           generate_release_notes: true
-          files: |
-            ./${{ steps.sha1.outputs.archive }}
+          files: ./${{ steps.package.outputs.archive }}
           body: |
-            **SHA1:** `${{ steps.sha1.outputs.sha1 }}`
+            **SHA1:** `${{ steps.package.outputs.sha1 }}`
 
             ## Install
 
-            Download the `.zip` file and extract it into your Grafana plugins directory, then restart Grafana.
+            Download the `.zip` file below and extract it into your Grafana plugins directory, then restart Grafana.
