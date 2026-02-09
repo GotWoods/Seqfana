@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: grafana/plugin-actions/build-plugin@main
         with:
-          policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
+          # Signing requires Grafana catalog approval first.
+          # Uncomment the line below after approval:
+          # policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
           attestation: true
-          use_changelog_generator: true
