@@ -20,6 +20,7 @@ const config = async (env: any): Promise<Configuration> => {
       filename: '[name].js',
       libraryTarget: 'amd',
       clean: true,
+      devtoolModuleFilenameTemplate: '[resource-path]',
     },
     externals: [
       'lodash',

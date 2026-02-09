@@ -39,10 +39,9 @@ jobs:
           node -e "
             const fs = require('fs');
             const map = JSON.parse(fs.readFileSync('dist/module.js.map','utf8'));
-            const prefix = 'webpack://gotwoods-seq-datasource/./';
             map.sources.forEach((src, i) => {
-              if (src.startsWith(prefix)) {
-                const file = src.slice(prefix.length);
+              const file = src.startsWith('./') ? src.slice(2) : src;
+              {
                 if (fs.existsSync(file)) {
                   const fileContent = fs.readFileSync(file, 'utf8');
                   const mapContent = map.sourcesContent[i];
